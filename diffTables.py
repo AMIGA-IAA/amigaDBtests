@@ -37,10 +37,26 @@ class diff_DB_CDS(object):
         connection = MySQLdb.connect(host=self.server, user=self.user, passwd=self.password, db=self.db ) #,use_unicode=True,  charset = ...
         cursor = connection.cursor()
         cursor.execute(query)
-        self.dbtable = numpy.fromiter(cursor, typeColumnsList)
+        
+        #This method doesn't work if there are Nulls in the DB. --> None in the python array
+        #self.dbtable = numpy.fromiter(cursor, typeColumnsList)
+        
+        #Build the numpy array
+        results = cursor.fetchall()
+        results = list(results)
+        for index_r, row in enumerate(results):
+            newrow = list(row)
+            for index_c, col in enumerate(newrow) :
+                if col is None :
+                    newrow[index_c]=numpy.nan
+            results[index_r] = tuple(newrow)
+            #if changes :
+            #    results results[index_r]
+        self.dbtable = numpy.array(results) #, dtype=typeColumnsList
+        
         connection.close()
         
-    def compareTables(self, typeColumnsListDB, ColumnNamesListCDS, tol):
+    def compareTables(self, columnNamesListDB, ColumnNamesListCDS, tol):
         '''
         Call getTaleFromDB and getTAbleFromCds before calling this method. 
         This method receive a list of names for the dbtable and a list of names for the cdstable.
@@ -52,36 +68,37 @@ class diff_DB_CDS(object):
         If two columns have different types, it transform them two strings and checks if they are equal.
         Remark: string types must be provided as static strings e.g. S3 is valid but not str 
         Return True if all the columns are equal.
+        Restriction: Columns to be compared must be in the same position in both lists.
         '''
-        if len(typeColumnsListDB) != len(ColumnNamesListCDS):
+        if len(columnNamesListDB) != len(ColumnNamesListCDS):
             raise Exception, 'Different number of columns'
         
         message = ""
         
-        for i in range(0, len(typeColumnsListDB)):
+        for i in range(0, len(columnNamesListDB)):
             data1 = self.cdstable.array[ColumnNamesListCDS[i]]
-            data2 = self.dbtable[typeColumnsListDB[i]]
+            data2 = self.dbtable[columnNamesListDB[i]]
             
             if not numpy.issubdtype(data1.dtype, str) and not numpy.issubdtype(data2.dtype, str):
                 data2_ma = ma.masked_array(data2, mask=numpy.isnan(data2).tolist())
                 if not ma.allclose(data1, data2_ma, atol=tol[i]) :
                     same = ma.allclose(data1, data2_ma, atol=tol[i])
                     difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
-                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + typeColumnsListDB[i] + ' in db are not equal.'  + str(difference) + '\n'
+                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal.'  + str(difference) + '\n'
             elif numpy.issubdtype(data1.dtype, str) and numpy.issubdtype(data2.dtype, str):
                 if ((sum(data1 == data2) ) != len(data1)): 
                     same = data1==data2
                     difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
-                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + typeColumnsListDB[i] + ' in db are not equal ('+ str(sum(data1 != data2)) + ' items): ' + str(difference) + '\n'
+                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal ('+ str(sum(data1 != data2)) + ' items): ' + str(difference) + '\n'
                     #print data1[0], data2[0], data1[0]==data2[0] 
             elif not numpy.issubdtype(data1.dtype, str) :
                 newcolumn = numpy.array(map(str, data1))
                 if (sum(newcolumn == data2) != len(data1)): 
-                    message += ColumnNamesListCDS[i] + ' in cdstable and ' + typeColumnsListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
+                    message += ColumnNamesListCDS[i] + ' in cdstable and ' + columnNamesListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
             elif not numpy.issubdtype(data2.dtype, str) :
                 newcolumn = numpy.array(map(str, data2))
                 if (sum(data1 == newcolumn) != len(data1)): 
-                    message += ColumnNamesListCDS[i] + ' in cdstable and ' + typeColumnsListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
+                    message += ColumnNamesListCDS[i] + ' in cdstable and ' + columnNamesListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
         if(len(message) > 0) :
             #print "Errors: " + message
             raise Exception, message

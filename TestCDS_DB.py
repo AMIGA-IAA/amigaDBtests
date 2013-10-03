@@ -44,7 +44,7 @@ class TestAMIGAdb(unittest.TestCase):
         pass
 
 
-    def test_LISENFELD2011(self):
+    def test_LISENFELD2011_table1_5(self):
         '''
         It compares table 1 and 5 in the paper of Lisenfeld 2011 with table 1 and 5 in the database (CIG_CO_LISENFELD11). 
         Fields in CIG_CO_LISENFELD11.Table1: cig, DIST, VEL, D25, POS_INCLIN_LOS, MType, IA, log(LB), l_log(LFIR), log(LFIR) and log(LK)
@@ -74,6 +74,36 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Lisenfeld 2011 (table 1 and 5)') 
+
+
+
+    def test_LISENFELD2011_table4(self):
+        '''
+        It compares table 4 in the paper of Lisenfeld 2011 with table 1 and 5 in the database (CIG_CO_LISENFELD11). 
+        Fields in CIG_CO_LISENFELD11.Table1: cig, DIST, VEL, D25, POS_INCLIN_LOS, MType, IA, log(LB), l_log(LFIR), log(LFIR) and log(LK)
+        Fields in CIG_CO_LISENFELD11.Table5: cig: , Det, log(MH2c), log(MH2m), log(MH2e), Tel, BibCode
+        Fields in CDS table (table 1 and 5) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/534/A102:
+            CIG, Dist, Vel, D25, i, TT, Mi, log(LB), l_log(LFIR), log(LFIR), log(LK), Det, MH2c, MH2e
+        
+        Therefore, log(MH2m), tel and bibcode are not checked.  
+        '''
+        
+        
+        cdsnames = ['CIG', 'u_CIG', 'oRA','oDE','rms','I_ICO','ICO','e_ICO','VCO','WCO','Tel']
+        url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/534/A102/table4&-out.max=unlimited"
+        self.diff.getTableFromCDS(url)
+        
+            
+        dtypes=[('cig',int), ('u_CIG', 'S2'), ('oRA', int), ('oDE', int), ('rms', float), ('I_ICO', 'S2'), ('ICO', float), ('e_ICO', float), ('VCO', int), ('WCO', int), ('Tel', int)]
+        dbnames =[pair[0] for pair in dtypes]        
+        query = "SELECT `cig`, `u_CIG`, `oRA`, `oDE`, `rms`, `l_ICO`, `ICO`, `e_ICO`, `VCO`, `WCO`, `Tel` FROM `TABLE4`"
+        self.diff.getTableFromDB(query, dtypes)      
+        
+        tolerance = numpy.array([-1, -1, -1, -1, 0.001, -1, 0.001, 0.001, -1, -1, -1 ])
+        
+        
+        self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Lisenfeld 2011 (table 4)') 
+
 
 
 if __name__ == "__main__":
