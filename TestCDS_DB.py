@@ -52,12 +52,13 @@ class TestAMIGAdb(unittest.TestCase):
         Fields in CDS table (table 1 and 5) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/534/A102:
             CIG, Dist, Vel, D25, i, TT, Mi, log(LB), l_log(LFIR), log(LFIR), log(LK), Det, MH2c, MH2e
         
-        Therefore, log(MH2m), tel and bibcode are not checked.  
+        Therefore, log(MH2m), tel and bibcode are not checked (because they are not in CDS). 
         '''
         
         
         cdsnames = ['CIG', 'Dist', 'Vel','D25','i','TT','Mi','log(LB)','l_log(LFIR)','log(LFIR)','log(LK)','Det','MH2c','MH2e']
         url="http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/534/A102"
+        url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/534/A102/table15&-out.max=unlimited"
         self.diff.getTableFromCDS(url)
         
             
