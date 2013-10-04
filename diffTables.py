@@ -42,17 +42,31 @@ class diff_DB_CDS(object):
         #self.dbtable = numpy.fromiter(cursor, typeColumnsList)
         
         #Build the numpy array
-        results = cursor.fetchall()
-        results = list(results)
-        for index_r, row in enumerate(results):
-            newrow = list(row)
-            for index_c, col in enumerate(newrow) :
-                if col is None :
-                    newrow[index_c]=numpy.nan
-            results[index_r] = tuple(newrow)
-            #if changes :
-            #    results results[index_r]
-        self.dbtable = numpy.array(results) #, dtype=typeColumnsList
+        #results = cursor.fetchall()
+        #results = list(results)
+        #for index_r, row in enumerate(results):
+        #    newrow = list(row)
+        #    for index_c, col in enumerate(newrow) :
+        #        if col is None :
+        #            newrow[index_c]=numpy.nan
+        #    results[index_r] = tuple(newrow)
+        #    #if changes :
+        #    #    results results[index_r]
+        
+        values = cursor.fetchall()
+        ncols = len(values[0])
+        nrows = len(values)
+        
+        arr = ma.zeros(nrows, dtype=typeColumnsList)
+        
+        for i, row in enumerate(values):
+            for j, cell in enumerate(values[i]):
+                if values[i][j] is None:
+                    arr.mask[i][j] = True
+                else:
+                    arr.data[i][j] = cell
+        
+        self.dbtable = arr
         
         connection.close()
         
@@ -78,11 +92,11 @@ class diff_DB_CDS(object):
         for i in range(0, len(columnNamesListDB)):
             data1 = self.cdstable.array[ColumnNamesListCDS[i]]
             data2 = self.dbtable[columnNamesListDB[i]]
-            
+            print "column: " + str(i)
             if not numpy.issubdtype(data1.dtype, str) and not numpy.issubdtype(data2.dtype, str):
-                data2_ma = ma.masked_array(data2, mask=numpy.isnan(data2).tolist())
-                if not ma.allclose(data1, data2_ma, atol=tol[i]) :
-                    same = ma.allclose(data1, data2_ma, atol=tol[i])
+                #data2_ma = ma.masked_array(data2, mask=numpy.isnan(data2).tolist())
+                if not ma.allclose(data1, data2, atol=tol[i]) :
+                    same = ma.allclose(data1, data2, atol=tol[i])
                     difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
                     message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal.'  + str(difference) + '\n'
             elif numpy.issubdtype(data1.dtype, str) and numpy.issubdtype(data2.dtype, str):

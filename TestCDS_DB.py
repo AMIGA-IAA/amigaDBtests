@@ -76,7 +76,7 @@ class TestAMIGAdb(unittest.TestCase):
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Lisenfeld 2011 (table 1 and 5)') 
 
 
-
+    
     def test_LISENFELD2011_table4(self):
         '''
         It compares table 4 in the paper of Lisenfeld 2011 with table 1 and 5 in the database (CIG_CO_LISENFELD11). 
