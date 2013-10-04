@@ -92,7 +92,7 @@ class diff_DB_CDS(object):
         for i in range(0, len(columnNamesListDB)):
             data1 = self.cdstable.array[ColumnNamesListCDS[i]]
             data2 = self.dbtable[columnNamesListDB[i]]
-            print "column: " + str(i)
+            #print "column: " + str(i)
             if not numpy.issubdtype(data1.dtype, str) and not numpy.issubdtype(data2.dtype, str):
                 #data2_ma = ma.masked_array(data2, mask=numpy.isnan(data2).tolist())
                 if not ma.allclose(data1, data2, atol=tol[i]) :

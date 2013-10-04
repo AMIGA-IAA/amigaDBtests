@@ -89,17 +89,17 @@ class TestAMIGAdb(unittest.TestCase):
         '''
         
         
-        cdsnames = ['CIG', 'u_CIG', 'oRA','oDE','rms','I_ICO','ICO','e_ICO','VCO','WCO','Tel']
+        cdsnames = ['CIG', 'u_CIG', 'oRA','oDE','rms','l_ICO','ICO','e_ICO','VCO','WCO','Tel']
         url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/534/A102/table4&-out.max=unlimited"
         self.diff.getTableFromCDS(url)
         
             
-        dtypes=[('cig',int), ('u_CIG', 'S2'), ('oRA', int), ('oDE', int), ('rms', float), ('I_ICO', 'S2'), ('ICO', float), ('e_ICO', float), ('VCO', int), ('WCO', int), ('Tel', int)]
+        dtypes=[('cig',int), ('u_CIG', 'S2'), ('oRA', int), ('oDE', int), ('rms', float), ('l_ICO', 'S2'), ('ICO', float), ('e_ICO', float), ('VCO', int), ('WCO', int), ('Tel', int)]
         dbnames =[pair[0] for pair in dtypes]        
         query = "SELECT `cig`, `u_CIG`, `oRA`, `oDE`, `rms`, `l_ICO`, `ICO`, `e_ICO`, `VCO`, `WCO`, `Tel` FROM `TABLE4`"
         self.diff.getTableFromDB(query, dtypes)      
         
-        tolerance = numpy.array([-1, -1, -1, -1, 0.001, -1, 0.001, 0.001, -1, -1, -1 ])
+        tolerance = numpy.array([0.1, -1, 0.1, 0.1, 0.001, -1, 0.001, 0.001, 0.1, 0.1, 0.1 ])
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Lisenfeld 2011 (table 4)') 
