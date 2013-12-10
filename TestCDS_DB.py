@@ -237,6 +237,41 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Sulentic 2006 (table 5)')
 
+    @unittest.skip("testing skipping")
+    def test_RADIOCONT_LEON08_table2(self):
+        '''
+        It compares table 2 in the paper of RADIOCONT LEON 08 with table 2 in the database (CIG_RADIOCONT_LEON08.TABLE2). 
+        Fields in CIG_RADIOCONT_LEON08.TABLE2: 'CIG', 'l_F325', 'F325', 'e_F325', 'r_F325', 'l_P325', 'P325', 'l_F1420', 'F1420', 'e_F1420', 'r_F1420', 'l_P1420', 'P1420', 'l_F4850', 'F4850', 'e_F4850', 'r_F4850', 'l_P4850', 'P4850'
+        Fields in CDS table (table 2) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/485/475:
+            'CIG', 'l_F325', 'F325', 'e_F325', 'r_F325', 'l_P325', 'P325', 'l_F1420', 'F1420', 'e_F1420', 'r_F1420', 'l_P1420', 'P1420', 'l_F4850', 'F4850', 'e_F4850', 'r_F4850', 'l_P4850', 'P4850', K73, AMIGa, Simbad, NED, _RA, _DE
+        
+        Therefore K73, AMIGa, Simbad, NED, _RA, _DE columns are not checked
+        '''
+        
+        print "Test CIG_RADIOCONT_LEON08.Table2\n"
+        print " - K73, AMIGa, Simbad, NED, _RA, _DE are not checked\n"
+        
+        self.diff = diff_DB_CDS("amiga.iaa.es", "CIG_RADIOCONT_LEON08", self.user, self.password)
+               
+        cdsnames = ['CIG', 'l_F325', 'F325', 'e_F325', 'r_F325', 'l_P325', 'P325', 'l_F1420', 'F1420', 'e_F1420', 'r_F1420', 'l_P1420', 'P1420', 'l_F4850', 'F4850', 'e_F4850', 'r_F4850', 'l_P4850', 'P4850']
+        url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/485/475/table2&-out.max=unlimited"
+        self.diff.getTableFromCDS(url)
+    
+        
+        dtypes=[('CIG',int), ('l_F325', 'S1'), ('F325', float), ('e_F325', float), ('r_F325', int), ('l_P325', 'S1'), ('P325', float), 
+                ('l_F1420', 'S1'), ('F1420', float), ('e_F1420', float), ('r_F1420', int), ('l_P1420', 'S1'), ('P1420', float), 
+                ('l_F4850', 'S1'), ('F4850', float), ('e_F4850', float), ('r_F4850', int), ('l_P4850', 'S1'), ('P4850', float)]
+        
+        
+        dbnames =[pair[0] for pair in dtypes]        
+        query = "SELECT CIG, l_F325, F325, e_F325, r_F325, l_P325, P325, l_F1420, F1420, e_F1420, r_F1420, l_P1420, P1420, l_F4850, F4850, e_F4850, r_F4850, l_P4850, P4850 FROM `TABLE2`"
+        self.diff.getTableFromDB(query, dtypes)      
+        
+        tolerance = numpy.array([0, -1, 0.001, 0.001, 0, -1, 0.0001, -1, 0.001, 0.001, 0, -1, 0.0001, -1, 0.001, 0.001, 0, -1, 0.0001])
+        
+        
+        self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in RADIOCONT LEON 2008 (table 2)')
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_LISENFELD2011']
     unittest.main()
