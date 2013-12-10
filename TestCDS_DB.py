@@ -237,7 +237,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Sulentic 2006 (table 5)')
 
-    @unittest.skip("testing skipping")
+    @unittest.skip("RADIOCONT_LEON08 is skipped. it has errors")
     def test_RADIOCONT_LEON08_table2(self):
         '''
         It compares table 2 in the paper of RADIOCONT LEON 08 with table 2 in the database (CIG_RADIOCONT_LEON08.TABLE2). 
@@ -271,6 +271,117 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in RADIOCONT LEON 2008 (table 2)')
+        
+    def test_AGN_SABATER12_table1(self):
+        '''
+        It compares table 1 in the paper of AGN Sabater 08 with table 1 in the database (CIG_AGN_SABATER12.TABLE1) 
+        Fields in CIG_AGN_SABATER12.TABLE1: 'CIG', 'fks', 'e_fks', 'logLks', 'e_logLks', 'f_logLks', 'logLB', 'MType', 'e_MType' 
+        Fields in CDS table (table 1) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/545/A15:
+            'CIG', 'fks', 'e_fks', 'logLks', 'e_logLks', 'f_logLks', 'logLB', 'MType', 'e_MType', CIG86, AMIGA, Simbad, NED, LEDA, _RA, _DE 
+        
+        Therefore CIG86, AMIGA, Simbad, NED, LEDA, _RA, _DE columns are not checked
+        '''
+        
+        print "Test CIG_AGN_SABATER12.Table1\n"
+        print " - CIG86, AMIGA, Simbad, NED, LEDA, _RA, _DE are not checked\n"
+        
+        self.diff = diff_DB_CDS("amiga.iaa.es", "CIG_AGN_SABATER12", self.user, self.password)
+               
+        cdsnames = ['CIG', 'fks', 'e_fks', 'logLks', 'e_logLks', 'f_logLks', 'logLB', 'MType', 'e_MType']
+        url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/545/A15/table1&-out.max=unlimited"
+        self.diff.getTableFromCDS(url)
+    
+        
+        dtypes=[('CIG',int), ('fks', float), ('e_fks', float), ('logLks', float), ('e_logLks', float), 
+                ('f_logLks', int), ('logLB', float), ('MType', float), ('e_MType', float)]
+        
+        
+        dbnames =[pair[0] for pair in dtypes]        
+        query = "SELECT CIG, fks, e_fks, logLks, e_logLks, f_logLks, logLB, MType, e_MType FROM `TABLE1`"
+        self.diff.getTableFromDB(query, dtypes)      
+        
+        tolerance = numpy.array([0, 0.0000000001, 0.0000000001, 0.001, 0.001, 0, 0.001, 0.01, 0.01])
+        
+        
+        self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 1)')
+
+    def test_AGN_SABATER12_table2_7(self):
+        '''
+        It compares table 2 and 7 (nuclear) in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE2 and TABLE7) 
+        Fields in CIG_AGN_SABATER12.TABLE2: 'CIG', Plate, MJD, Fiber, cc, z, e_z, v, e_v, zsp, e_zsp, sigma, e_sigma, Com
+        Fields in CIG_AGN_SABATER12.TABLE7: 'CIG', cl.NII, cl.SII, cl.OI, Class, TOType
+        Fields in CDS table (table nuclear) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/545/A15:
+            'CIG', Plate, MJD, Fiber, cc, z, e_z, v, e_v, zsp, e_zsp, sigma, e_sigma, Com, Sloan, cl.NII, cl.SII, cl.OI, Class, TOType 
+        
+        Therefore Sloan column is not checked
+        '''
+        
+        print "Test CIG_AGN_SABATER12.Table2 and Table7\n"
+        print " - Sloan is not checked\n"
+        
+        self.diff = diff_DB_CDS("amiga.iaa.es", "CIG_AGN_SABATER12", self.user, self.password)
+               
+        cdsnames = ['CIG', 'Plate', 'MJD', 'Fiber', 'cc', 'z', 'e_z', 'v', 'e_v', 'zsp', 'e_zsp', 'sigma', 'e_sigma', 'Com', 'cl.NII', 'cl.SII', 'cl.OI', 'Class', 'TOType']
+        url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/545/A15/nuclear&-out.max=unlimited"
+        self.diff.getTableFromCDS(url)
+    
+        
+        dtypes=[('CIG',int), ('Plate', int), ('MJD', int), ('Fiber', int), ('cc', int), 
+                ('z', float), ('e_z', float), ('v', int), ('e_v', int), ('zsp', float), 
+                ('e_zsp', float), ('sigma', float), ('e_sigma', float), ('Com', 'S2'), 
+                ('cl.NII', 'S9'), ('cl.SII', 'S5'), ('cl.OI', 'S5'), ('Class', 'S9'), ('TOType', 'S5')]
+        
+        
+        dbnames =[pair[0] for pair in dtypes]        
+        query = "SELECT t2.CIG,  Plate, MJD, Fiber, cc, z, e_z, v, e_v, zsp, e_zsp, sigma, e_sigma, Com, `cl.NII`, `cl.SII`, `cl.OI`, `Class`, `TOType` FROM `TABLE7` as t7, TABLE2 as t2 where t2.CIG = t7.CIG"
+        self.diff.getTableFromDB(query, dtypes)      
+        
+        tolerance = numpy.array([0, 0, 0, 0, 0, 
+                                 0.0000001, 0.0000001, 0, 0, 0.0000001,
+                                 0.0000001, 0.01, 0.01, -1,
+                                 -1, -1, -1, -1, -1])
+        
+        
+        self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 2 and 7)')
+
+    def test_AGN_SABATER12_table3_6(self):
+        '''
+        It compares table 3 and 6 (lines) in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE3 and TABLE6) 
+        Fields in CIG_AGN_SABATER12.TABLE3: 'CIG', vshift, vdisp, Anu
+        Fields in CIG_AGN_SABATER12.TABLE6: 'CIG', `f_logNIIa`, `l_logNIIa`, `logNIIa`, `e_logNIIa`, `f_logOIIIb`, `l_logOIIIb`, `logOIIIb`, `e_logOIIIb`, `f_logSIIa`, `l_logSIIa`, `logSIIa`, `e_logSIIa`, `f_logOIa`, `l_logOIa`, `logOIa`, `e_logOIa`
+        Fields in CDS table (table nuclear) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/545/A15:
+            'CIG', 'vshift', 'vdisp', 'Anu', 'f_logNIIa', 'l_logNIIa', 'logNIIa', 'e_logNIIa', 'f_logOIIIb', 'l_logOIIIb', 'logOIIIb', 'e_logOIIIb', 'f_logSIIa', 'l_logSIIa', 'logSIIa', 'e_logSIIa', 'f_logOIa', 'l_logOIa', 'logOIa', 'e_logOIa' 
+
+        '''
+        
+        print "Test CIG_AGN_SABATER12.Table3 and Table6\n"
+        
+        self.diff = diff_DB_CDS("amiga.iaa.es", "CIG_AGN_SABATER12", self.user, self.password)
+               
+        cdsnames = ['CIG', 'vshift', 'vdisp', 'Anu', 'f_logNIIa', 'l_logNIIa', 'logNIIa', 'e_logNIIa', 'f_logOIIIb', 'l_logOIIIb', 'logOIIIb', 'e_logOIIIb', 'f_logSIIa', 'l_logSIIa', 'logSIIa', 'e_logSIIa', 'f_logOIa', 'l_logOIa', 'logOIa', 'e_logOIa']
+        url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/545/A15/lines&-out.max=unlimited"
+        self.diff.getTableFromCDS(url)
+    
+        
+        dtypes=[('CIG',int), ('vshift', float), ('vdisp', float), ('Anu', float),  
+                ('f_logNIIa', int), ('l_logNIIa', int), ('logNIIa', float), ('e_logNIIa', float), 
+                ('f_logOIIIb', int), ('l_logOIIIb', int), ('ogOIIIb', float), ('e_logOIIIb', float), 
+                ('f_logSIIa', int), ('l_logSIIa', int), ('logSIIa', float), ('e_logSIIa', float),
+                ('f_logOIa', int), ('l_logOIa', int), ('logOIa', float), ('e_logOIa', float)]
+        
+        
+        dbnames =[pair[0] for pair in dtypes]        
+        query = "SELECT t3.CIG, vshift, vdisp, Anu,`f_logNIIa`, `l_logNIIa`, `logNIIa`, `e_logNIIa`, `f_logOIIIb`, `l_logOIIIb`, `logOIIIb`, `e_logOIIIb`, `f_logSIIa`, `l_logSIIa`, `logSIIa`, `e_logSIIa`, `f_logOIa`, `l_logOIa`, `logOIa`, `e_logOIa` FROM TABLE6 as t6, TABLE3 as t3 WHERE t3.CIG = t6.CIG"
+        self.diff.getTableFromDB(query, dtypes)      
+        
+        tolerance = numpy.array([0, 0.001, 0.001, 0.00001, 
+                                 0, 0, 0.00001, 0.00001,
+                                 0, 0, 0.00001, 0.00001,
+                                 0, 0, 0.00001, 0.00001,
+                                 0, 0, 0.00001, 0.00001])
+        
+        
+        self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 3 and 6)')
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.test_LISENFELD2011']
