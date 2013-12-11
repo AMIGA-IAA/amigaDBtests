@@ -383,7 +383,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 3 and 6)')
         
-    @unittest.skip("RADIOCONT_LEON08 is skipped until it can be tested")
+    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
     def test_AGN_SABATER12_table4(self):
         '''
         It compares table 4  in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE4) 
@@ -414,7 +414,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 4)')
 
-    @unittest.skip("RADIOCONT_LEON08 is skipped until it can be tested")
+    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
     def test_AGN_SABATER12_table5(self):
         '''
         It compares table 5 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE4) 
@@ -447,7 +447,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 5)')
         
-    @unittest.skip("RADIOCONT_LEON08 is skipped until it can be tested")
+    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
     def test_AGN_SABATER12_tablea1(self):
         '''
         It compares table A1 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLEA1) 
@@ -480,7 +480,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table A1)')
 
-    @unittest.skip("RADIOCONT_LEON08 is skipped until it can be tested")
+    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
     def test_AGN_SABATER12_tablea2(self):
         '''
         It compares table A2 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLEA2) 
@@ -512,7 +512,7 @@ class TestAMIGAdb(unittest.TestCase):
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table A2)')
         
 
-    @unittest.skip("RADIOCONT_LEON08 is skipped until it can be tested")
+    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
     def test_AGN_SABATER12_tablea3(self):
         '''
         It compares table A3 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLEA3) 
