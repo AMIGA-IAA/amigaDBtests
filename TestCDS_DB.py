@@ -42,7 +42,7 @@ class TestAMIGAdb(unittest.TestCase):
     def tearDown(self):
         pass
 
-        
+    @unittest.skip("skipped to avoid overload")   
     def test_LISENFELD2011_table1_5(self):
         '''
         It compares table 1 and 5 in the paper of Lisenfeld 2011 with table 1 and 5 in the database (CIG_CO_LISENFELD11). 
@@ -81,7 +81,7 @@ class TestAMIGAdb(unittest.TestCase):
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Lisenfeld 2011 (table 1 and 5)') 
 
 
-    
+    @unittest.skip("skipped to avoid overload")   
     def test_LISENFELD2011_table4(self):
         '''
         It compares table 4 in the paper of Lisenfeld 2011 with table 1 and 5 in the database (CIG_CO_LISENFELD11). 
@@ -113,7 +113,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Lisenfeld 2011 (table 4)') 
 
-
+    @unittest.skip("skipped to avoid overload")   
     def test_LEON2003_table1(self):
         '''
         It compares table 1 in the paper of Leon 2003 with table 1 in the database (CIG_LEON2003.TABLE1). 
@@ -146,7 +146,7 @@ class TestAMIGAdb(unittest.TestCase):
 
     #SULENTIC 2006
     #SULENTIC2006.TABLE1 is in CDS but not in the DB
-    
+    @unittest.skip("skipped to avoid overload")   
     def test_SULENTIC2006_table3(self):
         '''
         It compares table 3 in the paper of Sulentic 2006 with table 3 in the database (CIG_SULENTIC2006.TABLE1). 
@@ -177,7 +177,8 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Sulentic 2006 (table 3)') 
-
+    
+    @unittest.skip("skipped to avoid overload")   
     def test_SULENTIC2006_table4(self):
         '''
         It compares table 4 in the paper of Sulentic 2006 with table 4 in the database (CIG_SULENTIC2006.TABLE4). 
@@ -207,7 +208,8 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Sulentic 2006 (table 4)')
-        
+     
+    @unittest.skip("skipped to avoid overload")   
     def test_SULENTIC2006_table5(self):
         '''
         It compares table 5 in the paper of Sulentic 2006 with table 5 in the database (CIG_SULENTIC2006.TABLE5). 
@@ -237,7 +239,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in Sulentic 2006 (table 5)')
 
-    @unittest.skip("RADIOCONT_LEON08 is skipped. it has errors")
+    @unittest.skip("RADIOCONT_LEON08 is skipped. it has errorsssssssssss")
     def test_RADIOCONT_LEON08_table2(self):
         '''
         It compares table 2 in the paper of RADIOCONT LEON 08 with table 2 in the database (CIG_RADIOCONT_LEON08.TABLE2). 
@@ -271,7 +273,8 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in RADIOCONT LEON 2008 (table 2)')
-        
+     
+    @unittest.skip("skipped to avoid overload")      
     def test_AGN_SABATER12_table1(self):
         '''
         It compares table 1 in the paper of AGN Sabater 08 with table 1 in the database (CIG_AGN_SABATER12.TABLE1) 
@@ -304,7 +307,8 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 1)')
-
+    
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_table2_7(self):
         '''
         It compares table 2 and 7 (nuclear) in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE2 and TABLE7) 
@@ -343,7 +347,8 @@ class TestAMIGAdb(unittest.TestCase):
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 2 and 7)')
-
+    
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_table3_6(self):
         '''
         It compares table 3 and 6 (lines) in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE3 and TABLE6) 
@@ -383,7 +388,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 3 and 6)')
         
-    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_table4(self):
         '''
         It compares table 4  in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE4) 
@@ -414,7 +419,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 4)')
 
-    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_table5(self):
         '''
         It compares table 5 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLE4) 
@@ -447,7 +452,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table 5)')
         
-    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_tablea1(self):
         '''
         It compares table A1 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLEA1) 
@@ -480,7 +485,7 @@ class TestAMIGAdb(unittest.TestCase):
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table A1)')
 
-    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_tablea2(self):
         '''
         It compares table A2 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLEA2) 
@@ -512,33 +517,34 @@ class TestAMIGAdb(unittest.TestCase):
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table A2)')
         
 
-    @unittest.skip("AGN_SABATER12 is skipped until it can be tested")
+    @unittest.skip("skipped to avoid overload")   
     def test_AGN_SABATER12_tablea3(self):
         '''
         It compares table A3 in the paper of AGN Sabater 08 with table  in the database (CIG_AGN_SABATER12.TABLEA3) 
-        Fields in CIG_AGN_SABATER12.TABLEA2: `CIG`, HCG, MType, BMAG
+        Fields in CIG_AGN_SABATER12.TABLEA2: HCG, MType, BMAG
         Fields in CDS table (table nuclear) using this url: http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/545/A15:
-            `CIG`, HCG, MType, BMAG
-
+             HCG, MType, BMAG, Class, SimbadName, _RA, _DE
+             Therefore Class, SimbadName, _RA, _DE columns are not checked
         '''
         
         print "Test CIG_AGN_SABATER12.Tablea3\n"
+        print "Class, SimbadName, _RA, _DE columns are not checked"
         
         self.diff = diff_DB_CDS("amiga.iaa.es", "CIG_AGN_SABATER12", self.user, self.password)
                
-        cdsnames = ['CIG', 'HCG', 'MType', 'BMAG']
+        cdsnames = ['HCG', 'MType', 'BMAG']
         url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/545/A15/tablea3&-out.max=unlimited"
         self.diff.getTableFromCDS(url)
     
         
-        dtypes=[('CIG',int), ('HCG', 'S5'), ('MType', float), ('BMAG', float)]
+        dtypes=[ ('HCG', 'S5'), ('MType', float), ('BMAG', float)]
         
         
         dbnames =[pair[0] for pair in dtypes]        
-        query = "SELECT `CIG`, HCG, MType, BMAG FROM `TABLEA2`"
+        query = "SELECT HCG, MType, BMAG FROM `TABLEA3`"
         self.diff.getTableFromDB(query, dtypes)      
         
-        tolerance = numpy.array([0, -1, 0.01, 0.0001])
+        tolerance = numpy.array([-1, 0.01, 0.0001])
         
         
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in AGN Sabater 08 (table A3)')
