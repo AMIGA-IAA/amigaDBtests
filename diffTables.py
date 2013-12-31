@@ -9,6 +9,10 @@ import MySQLdb
 import numpy
 from astropy.io.votable import parse_single_table
 import numpy.ma as ma
+import ConfigParser
+import os
+from numpy import array
+import numpy as np
 
 
 class diff_DB_CDS(object):
@@ -92,13 +96,30 @@ class diff_DB_CDS(object):
         for i in range(0, len(columnNamesListDB)):
             data1 = self.cdstable.array[ColumnNamesListCDS[i]]
             data2 = self.dbtable[columnNamesListDB[i]]
+            if len(data1) != len(data2) :
+                message = "There are " + str(len(data1)) + " rows in CDS and " + str(len(data2)) + " rows in the DB."
+                raise Exception, message
             #print "column: " + str(i)
             if not numpy.issubdtype(data1.dtype, str) and not numpy.issubdtype(data2.dtype, str):
                 #data2_ma = ma.masked_array(data2, mask=numpy.isnan(data2).tolist())
                 if not ma.allclose(data1, data2, atol=tol[i]) :
                     same = ma.allclose(data1, data2, atol=tol[i])
-                    difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
-                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal.'  + str(difference) + '\n'
+                    #msn = "Position: " + str(i) + ", column cds: " + str(ColumnNamesListCDS[i]) + ", column db: " + str(columnNamesListDB[i]) + "\n"
+                    #print msn 
+                    #print "len data1: " + str(len(data1)) + ", len data2: " + str(len(data2)) + " \n"
+                    #(abs(data1-data2) + tol[i]) <= 0   c =  (abs(data1-data2) + tol[i])     c = ma.masked_where(c <= 0, c)
+                    condition = (abs(data1-data2) + tol[i]) > 0
+                    #condition = condition.data
+                    ix = np.where(condition)
+                    ix = ix[0]
+                    #r = array(range(len(condition)))
+                    #r(condition)
+                    #difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
+                    difference = [(index, x,y) for index,x,y in zip(range(len(data1)),  data1, data2) ]
+                    final_difference = [x for j_index, x in enumerate(difference) if j_index in ix]
+                    #print str(len(final_difference))
+                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal for some rows: '  + str(final_difference) + '\n'
+                    
             elif numpy.issubdtype(data1.dtype, str) and numpy.issubdtype(data2.dtype, str):
                 if ((sum(data1 == data2) ) != len(data1)): 
                     same = data1==data2
@@ -121,33 +142,56 @@ class diff_DB_CDS(object):
 
 
 if __name__ == '__main__':
+#    
+#    diff = diff_DB_CDS("amiga.iaa.es", "CIG_CO_LISENFELD11", "amiga", "")
+#    
+#    cdsnames = ['CIG', 'Dist', 'Vel','D25','i','TT','Mi','log(LB)','l_log(LFIR)','log(LFIR)','log(LK)','Det','MH2c','MH2e']
+#    url="http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/534/A102"
+#    diff.getTableFromCDS(url)
+#    
+#        
+#    #dtypes=[('cig',int), ('DIST', int), ('VEL', int), ('D25', float), ('POS_INCL_LOS', float), ('MType', int), ('IA', int), ('log(LB)', float), ('l_log(LFIR)', str), ('log(LFIR)', float), ('log(LK)', float), ('Det', int), ('log(MH2c)', float), ('log(MH2m)', float), ('log(MH2e)', float), ('Tel', int), ('BibCode', int)]
+#    dtypes=[('cig',int), ('DIST', int), ('VEL', int), ('D25', float), ('POS_INCL_LOS', float), ('MType', int), ('IA', int), ('log(LB)', float), ('l_log(LFIR)', 'S2'), ('log(LFIR)', float), ('log(LK)', float), ('Det', int), ('log(MH2c)', float),  ('log(MH2e)', float)]
+#    #I have to remove ('log(MH2m)', float), tel y bibcode, from the query because the cds doesn't return these columns: , t5.`log(MH2m)`
+#    dbnames =[pair[0] for pair in dtypes]
+#    #query = "select t1.cig, t1.dist, t1.vel, t1.d25, t1.pos_incl_los, t1.mtype, t1.ia, t1.`log(LB)`, t1.`l_log(lfir)`, t1.`log(lfir)`, t1.`log(LK)`, t5.Det, t5.`log(MH2c)`, t5.`log(MH2m)`, t5.`log(MH2e)`, t5.Tel, t5.BibCode from TABLE1 as t1, TABLE5 as t5 WHERE t1.cig = t5.cig"
+#    query = "select t1.cig, t1.dist, t1.vel, t1.d25, t1.pos_incl_los, t1.mtype, t1.ia, t1.`log(LB)`, t1.`l_log(lfir)`, t1.`log(lfir)`, t1.`log(LK)`, t5.Det, t5.`log(MH2c)`, t5.`log(MH2e)` from TABLE1 as t1, TABLE5 as t5 WHERE t1.cig = t5.cig"
+#    diff.getTableFromDB(query, dtypes)
+#    
+#    
+#    tolerance = numpy.array([0.0001, 0.0001, 0.0001, 0.001, 0.0001, 0.0001, 0.0001, 0.001, 0, 0.001, 0.001, 0.0001, 0.001, 0.001 ])
+#    
+#    
+#    #Check why l_log(LFIR) is not equal in both tables: the answer is that one contains spaces and the other nothing.
+#    #print (diff.cdstable.array['l_log(LFIR)'])
+#    #print (diff.dbtable['l_log(LFIR)'])    
+#    #same  = diff.cdstable.array['l_log(LFIR)']==diff.dbtable['l_log(LFIR)']
+#    #cig_diff = diff.cdstable.array['CIG']-diff.dbtable['cig']
+#    #[(z,x,y) for x,y,z,k in zip(list(diff.cdstable.array['l_log(LFIR)']), diff.dbtable['l_log(LFIR)'], diff.dbtable['cig'], same) if k == False]
+#    
+#    #print dbnames
+#    diff.compareTables(dbnames, cdsnames, tolerance)
     
-    diff = diff_DB_CDS("amiga.iaa.es", "CIG_CO_LISENFELD11", "amiga", "")
+    #new case
+    config = ConfigParser.RawConfigParser(allow_no_value=True)
+    config.read(['amigaDB.cfg', os.path.expanduser('~/.amigaDB.cfg')])
+    user = config.get("rootAMIGA", "user")
+    password = config.get("rootAMIGA", "passw")
     
-    cdsnames = ['CIG', 'Dist', 'Vel','D25','i','TT','Mi','log(LB)','l_log(LFIR)','log(LFIR)','log(LK)','Det','MH2c','MH2e']
-    url="http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=J/A+A/534/A102"
+    diff = diff_DB_CDS("amiga.iaa.es", "PAPERS_ISOLATION_VERLEY07b", user, password)
+    
+    cdsnames = ['CIG', 'NName']
+    #url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/470/505/table3&-out.max=unlimited"
+    url="/home/julian/Escritorio/votables/vizier_votable.vot"
     diff.getTableFromCDS(url)
-    
+     
+    dtypes=[ ('cig', int), ('NName', int)]
         
-    #dtypes=[('cig',int), ('DIST', int), ('VEL', int), ('D25', float), ('POS_INCL_LOS', float), ('MType', int), ('IA', int), ('log(LB)', float), ('l_log(LFIR)', str), ('log(LFIR)', float), ('log(LK)', float), ('Det', int), ('log(MH2c)', float), ('log(MH2m)', float), ('log(MH2e)', float), ('Tel', int), ('BibCode', int)]
-    dtypes=[('cig',int), ('DIST', int), ('VEL', int), ('D25', float), ('POS_INCL_LOS', float), ('MType', int), ('IA', int), ('log(LB)', float), ('l_log(LFIR)', 'S2'), ('log(LFIR)', float), ('log(LK)', float), ('Det', int), ('log(MH2c)', float),  ('log(MH2e)', float)]
-    #I have to remove ('log(MH2m)', float), tel y bibcode, from the query because the cds doesn't return these columns: , t5.`log(MH2m)`
-    dbnames =[pair[0] for pair in dtypes]
-    #query = "select t1.cig, t1.dist, t1.vel, t1.d25, t1.pos_incl_los, t1.mtype, t1.ia, t1.`log(LB)`, t1.`l_log(lfir)`, t1.`log(lfir)`, t1.`log(LK)`, t5.Det, t5.`log(MH2c)`, t5.`log(MH2m)`, t5.`log(MH2e)`, t5.Tel, t5.BibCode from TABLE1 as t1, TABLE5 as t5 WHERE t1.cig = t5.cig"
-    query = "select t1.cig, t1.dist, t1.vel, t1.d25, t1.pos_incl_los, t1.mtype, t1.ia, t1.`log(LB)`, t1.`l_log(lfir)`, t1.`log(lfir)`, t1.`log(LK)`, t5.Det, t5.`log(MH2c)`, t5.`log(MH2e)` from TABLE1 as t1, TABLE5 as t5 WHERE t1.cig = t5.cig"
-    diff.getTableFromDB(query, dtypes)
-    
-    
-    tolerance = numpy.array([0.0001, 0.0001, 0.0001, 0.001, 0.0001, 0.0001, 0.0001, 0.001, 0, 0.001, 0.001, 0.0001, 0.001, 0.001 ])
-    
-    
-    #Check why l_log(LFIR) is not equal in both tables: the answer is that one contains spaces and the other nothing.
-    #print (diff.cdstable.array['l_log(LFIR)'])
-    #print (diff.dbtable['l_log(LFIR)'])    
-    #same  = diff.cdstable.array['l_log(LFIR)']==diff.dbtable['l_log(LFIR)']
-    #cig_diff = diff.cdstable.array['CIG']-diff.dbtable['cig']
-    #[(z,x,y) for x,y,z,k in zip(list(diff.cdstable.array['l_log(LFIR)']), diff.dbtable['l_log(LFIR)'], diff.dbtable['cig'], same) if k == False]
-    
-    #print dbnames
+        
+    dbnames =[pair[0] for pair in dtypes]        
+    query = "SELECT `cig`, `NName` FROM `TABLE3`"
+    diff.getTableFromDB(query, dtypes)      
+        
+    tolerance = numpy.array([0, 0])
+        
     diff.compareTables(dbnames, cdsnames, tolerance)
-
