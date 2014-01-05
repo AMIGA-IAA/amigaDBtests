@@ -1158,7 +1158,7 @@ class TestAMIGAdb(unittest.TestCase):
         self.assertTrue( self.diff.compareTables(dbnames, cdsnames, tolerance), 'There is a mismatch in LB_VERDESM05 (table 3)') 
 
 
-    #@unittest.skip("skipped to avoid overload")   
+    @unittest.skip("skipped to avoid overload")   
     def test_LB_VERDESM05_refs(self):
         '''
         It compares refs in the paper of LB_VERDESM05 with refs in the database (CIG_LB_VERDESM05.refs). 
