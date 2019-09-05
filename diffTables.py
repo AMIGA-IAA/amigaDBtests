@@ -36,6 +36,16 @@ class diff_DB_CDS(object):
         '''
         self.url_cds = url
         self.cdstable = parse_single_table(url)
+
+    def print_CDS_table(self):
+        '''
+        Print a CDS table that has been previously loaded.
+        '''
+        if self.cdstable is None:
+            print(" Please load the table first. Nothing to print. ")
+            return
+        else:
+            print(self.cdstable)
     
     def getTableFromDB(self, query, typeColumnsList):
         connection = MySQLdb.connect(host=self.server, user=self.user, passwd=self.password, db=self.db ) #,use_unicode=True,  charset = ...
@@ -73,7 +83,17 @@ class diff_DB_CDS(object):
         self.dbtable = arr
         
         connection.close()
-        
+
+    def print_AMIGA_table(self):
+        '''
+        Print an AMIGA table that has been previously loaded.
+        '''
+        if self.dbtable is None:
+            print(" Please load the table first. Nothing to print. ")
+            return
+        else:
+            print(self.dbtable)
+
     def compareTables(self, columnNamesListDB, ColumnNamesListCDS, tol):
         '''
         Call getTaleFromDB and getTAbleFromCds before calling this method. 
@@ -174,24 +194,39 @@ if __name__ == '__main__':
     
     #new case
     config = ConfigParser.RawConfigParser(allow_no_value=True)
-    config.read(['amigaDB.cfg', os.path.expanduser('~/.amigaDB.cfg')])
-    user = config.get("rootAMIGA", "user")
-    password = config.get("rootAMIGA", "passw")
+    config.read(['config.cfg', os.path.expanduser('~/.config.cfg')])
+    amiga_db_user = config.get("amiga_db", "user")
+    amiga_db_password = config.get("amiga_db", "password")
+    amiga_db_host = config.get("amiga_db", "host")
+    amiga_db_database = config.get("amiga_db", "database")
+    amiga_db_table = config.get("amiga_db", "table")
+    amiga_db_columns = config.get("amiga_db", "table_columns").split(',')
+    amiga_db_column_types = config.get("amiga_db", "table_column_types").split(',')
     
-    diff = diff_DB_CDS("amiga.iaa.es", "PAPERS_ISOLATION_VERLEY07b", user, password)
+    diff = diff_DB_CDS(amiga_db_host,
+                       amiga_db_database,
+                       amiga_db_user,
+                       amiga_db_password)
     
-    cdsnames = ['CIG', 'NName']
-    #url="http://vizier.u-strasbg.fr/viz-bin/votable?-source=J/A%2bA/470/505/table3&-out.max=unlimited"
-    url="/home/julian/Escritorio/votables/vizier_votable.vot"
-    diff.getTableFromCDS(url)
-     
-    dtypes=[ ('cig', int), ('NName', int)]
-        
-        
-    dbnames =[pair[0] for pair in dtypes]        
-    query = "SELECT `cig`, `NName` FROM `TABLE3`"
-    diff.getTableFromDB(query, dtypes)      
+    cds_db_url = config.get("cds_db", "url")
+    cds_db_columns = config.get("cds_db", "table_columns").split(',')
+    diff.getTableFromCDS(cds_db_url)
+
+    #diff.print_CDS_table()
+
+    dtypes=zip(amiga_db_columns, amiga_db_column_types)
+    sql_columns = ""
+    for index, value in enumerate(amiga_db_columns):
+        if index == len(amiga_db_columns) - 1:
+            # last item
+            sql_columns += "`{}`".format(value)
+        else:
+            sql_columns += "`{}`, ".format(value)
+    amiga_db_query = "SELECT {} FROM `{}`".format(sql_columns, amiga_db_table)
+    diff.getTableFromDB(amiga_db_query, dtypes)
+
+    #diff.print_AMIGA_table()
         
     tolerance = numpy.array([0, 0])
         
-    diff.compareTables(dbnames, cdsnames, tolerance)
+    diff.compareTables(amiga_db_columns, cds_db_columns, tolerance)
