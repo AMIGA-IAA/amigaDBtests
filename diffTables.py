@@ -9,7 +9,7 @@ import MySQLdb
 import numpy
 from astropy.io.votable import parse_single_table
 import numpy.ma as ma
-import ConfigParser
+import configparser
 import os
 from numpy import array
 import numpy as np
@@ -96,9 +96,9 @@ class diff_DB_CDS(object):
         * The second one coming from the AMIGA table
         '''
         # compare each element in both arrays
-        print('\nDifferences in columns {}@CDS and {}@AMIGA'.format(
+        print(('\nDifferences in columns {}@CDS and {}@AMIGA'.format(
               cds_column_name,
-              amiga_column_name))
+              amiga_column_name)))
         print('------------------------------------------')
         print('{:<20} {:<20} {:<20}'.format(
               'Pos',
@@ -134,7 +134,7 @@ class diff_DB_CDS(object):
         Restriction: Columns to be compared must be in the same position in both lists.
         '''
         if len(columnNamesListDB) != len(ColumnNamesListCDS):
-            raise Exception, 'Different number of columns'
+            raise Exception('Different number of columns')
         
         message = ""
         
@@ -146,7 +146,7 @@ class diff_DB_CDS(object):
             if len(data1) != len(data2) :
                 message = "There are " + str(len(data1)) + " rows in CDS and " \
                             + str(len(data2)) + " rows in the AMIGA DB."
-                raise Exception, message
+                raise Exception(message)
 
             if (data1.dtype != np.dtype(str).type) and (data2.dtype != np.dtype(str).type):
 
@@ -175,18 +175,18 @@ class diff_DB_CDS(object):
 
             elif data1.dtype != np.dtype(str).type :
 
-                newcolumn = numpy.array(map(str, data1))
+                newcolumn = numpy.array(list(map(str, data1)))
                 if (sum(newcolumn == data2) != len(data1)): 
                     message += ColumnNamesListCDS[i] + ' in cdstable and ' + columnNamesListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
 
             elif data2.dtype != np.dtype(str).type :
 
-                newcolumn = numpy.array(map(str, data2))
+                newcolumn = numpy.array(list(map(str, data2)))
                 if (sum(data1 == newcolumn) != len(data1)): 
                     message += ColumnNamesListCDS[i] + ' in cdstable and ' + columnNamesListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
 
         if (len(message) > 0) :
-            raise Exception, message
+            raise Exception(message)
         else:
             return True
 
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 #    diff.compareTables(dbnames, cdsnames, tolerance)
     
     #new case
-    config = ConfigParser.RawConfigParser(allow_no_value=True)
+    config = configparser.RawConfigParser(allow_no_value=True)
     config.read(['config.cfg', os.path.expanduser('~/.config.cfg')])
     amiga_db_user = config.get("amiga_db", "user")
     amiga_db_password = config.get("amiga_db", "password")
@@ -244,7 +244,7 @@ if __name__ == '__main__':
 
     #diff.print_CDS_table()
 
-    dtypes=zip(amiga_db_columns, amiga_db_column_types)
+    dtypes=list(zip(amiga_db_columns, amiga_db_column_types))
     sql_columns = ""
     for index, value in enumerate(amiga_db_columns):
         if index == len(amiga_db_columns) - 1:
