@@ -48,24 +48,13 @@ class diff_DB_CDS(object):
             print(self.cdstable)
     
     def getTableFromDB(self, query, typeColumnsList):
-        connection = MySQLdb.connect(host=self.server, user=self.user, passwd=self.password, db=self.db ) #,use_unicode=True,  charset = ...
+        '''
+        Get a table from the AMIGA database
+        '''
+        # use_unicode=True, charset=...
+        connection = MySQLdb.connect(host=self.server, user=self.user, passwd=self.password, db=self.db)
         cursor = connection.cursor()
         cursor.execute(query)
-        
-        #This method doesn't work if there are Nulls in the DB. --> None in the python array
-        #self.dbtable = numpy.fromiter(cursor, typeColumnsList)
-        
-        #Build the numpy array
-        #results = cursor.fetchall()
-        #results = list(results)
-        #for index_r, row in enumerate(results):
-        #    newrow = list(row)
-        #    for index_c, col in enumerate(newrow) :
-        #        if col is None :
-        #            newrow[index_c]=numpy.nan
-        #    results[index_r] = tuple(newrow)
-        #    #if changes :
-        #    #    results results[index_r]
         
         values = cursor.fetchall()
         ncols = len(values[0])
@@ -94,6 +83,42 @@ class diff_DB_CDS(object):
         else:
             print(self.dbtable)
 
+    global print_column_diff
+    def print_column_diff(cds_column_name,
+                          cds_column,
+                          amiga_column_name,
+                          amiga_column,
+                          data_type,
+                          tolerance=0):
+        '''
+        Auxiliary function to print the differences found between two columns:
+        * The first one coming from the CDS table
+        * The second one coming from the AMIGA table
+        '''
+        # compare each element in both arrays
+        print('\nDifferences in columns {}@CDS and {}@AMIGA'.format(
+              cds_column_name,
+              amiga_column_name))
+        print('------------------------------------------')
+        print('{:<20} {:<20} {:<20}'.format(
+              'Pos',
+              cds_column_name + '@CDS',
+              amiga_column_name  + '@AMIGA'))
+        i = 0
+        for e in cds_column:
+            # and print the different ones
+            if data_type == 'int':
+
+                if (abs(cds_column[i] - amiga_column[i]) + tolerance) > 0:
+                    print('{:<20} {:<20} {:<20}'.format(i, cds_column[i], amiga_column[i]))
+
+            elif data_type == 'str':
+
+                if cds_column[i] != amiga_column[i]:
+                    print('{:<20} {:<20} {:<20}'.format(i, cds_column[i], amiga_column[i]))
+
+            i += 1
+
     def compareTables(self, columnNamesListDB, ColumnNamesListCDS, tol):
         '''
         Call getTaleFromDB and getTAbleFromCds before calling this method. 
@@ -114,48 +139,53 @@ class diff_DB_CDS(object):
         message = ""
         
         for i in range(0, len(columnNamesListDB)):
+
             data1 = self.cdstable.array[ColumnNamesListCDS[i]]
             data2 = self.dbtable[columnNamesListDB[i]]
+
             if len(data1) != len(data2) :
-                message = "There are " + str(len(data1)) + " rows in CDS and " + str(len(data2)) + " rows in the DB."
+                message = "There are " + str(len(data1)) + " rows in CDS and " \
+                            + str(len(data2)) + " rows in the AMIGA DB."
                 raise Exception, message
-            #print "column: " + str(i)
-            if not numpy.issubdtype(data1.dtype, str) and not numpy.issubdtype(data2.dtype, str):
-                #data2_ma = ma.masked_array(data2, mask=numpy.isnan(data2).tolist())
-                if not ma.allclose(data1, data2, atol=tol[i]) :
-                    same = ma.allclose(data1, data2, atol=tol[i])
-                    #msn = "Position: " + str(i) + ", column cds: " + str(ColumnNamesListCDS[i]) + ", column db: " + str(columnNamesListDB[i]) + "\n"
-                    #print msn 
-                    #print "len data1: " + str(len(data1)) + ", len data2: " + str(len(data2)) + " \n"
-                    #(abs(data1-data2) + tol[i]) <= 0   c =  (abs(data1-data2) + tol[i])     c = ma.masked_where(c <= 0, c)
-                    condition = (abs(data1-data2) + tol[i]) > 0
-                    #condition = condition.data
-                    ix = np.where(condition)
-                    ix = ix[0]
-                    #r = array(range(len(condition)))
-                    #r(condition)
-                    #difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
-                    difference = [(index, x,y) for index,x,y in zip(range(len(data1)),  data1, data2) ]
-                    final_difference = [x for j_index, x in enumerate(difference) if j_index in ix]
-                    #print str(len(final_difference))
-                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal for some rows: '  + str(final_difference) + '\n'
-                    
-            elif numpy.issubdtype(data1.dtype, str) and numpy.issubdtype(data2.dtype, str):
+
+            if (data1.dtype != np.dtype(str).type) and (data2.dtype != np.dtype(str).type):
+
+                if not ma.allclose(data1, data2, atol=tol[i]):
+                    print_column_diff(ColumnNamesListCDS[i],
+                                      data1,
+                                      columnNamesListDB[i],
+                                      data2,
+                                      'int',
+                                      tol[i])
+                    message += '\nColumns {}@CDS and {}@AMIGA are different (see above).'.format(
+                            ColumnNamesListCDS[i],
+                            columnNamesListDB[i])
+
+            elif (data1.dtype == np.dtype(str).type) and (data2.dtype == np.dtype(str).type):
+
                 if ((sum(data1 == data2) ) != len(data1)): 
-                    same = data1==data2
-                    difference = [(x,y) for x,y,z in zip(data1, data2, same) if z == False]
-                    message += ColumnNamesListCDS[i] + ' in CDStable and ' + columnNamesListDB[i] + ' in db are not equal ('+ str(sum(data1 != data2)) + ' items): ' + str(difference) + '\n'
-                    #print data1[0], data2[0], data1[0]==data2[0] 
-            elif not numpy.issubdtype(data1.dtype, str) :
+                    print_column_diff(ColumnNamesListCDS[i],
+                                      data1,
+                                      columnNamesListDB[i],
+                                      data2,
+                                      'str')
+                    message += '\nColumns {}@CDS and {}@AMIGA are different (see above).'.format(
+                            ColumnNamesListCDS[i],
+                            columnNamesListDB[i])
+
+            elif data1.dtype != np.dtype(str).type :
+
                 newcolumn = numpy.array(map(str, data1))
                 if (sum(newcolumn == data2) != len(data1)): 
                     message += ColumnNamesListCDS[i] + ' in cdstable and ' + columnNamesListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
-            elif not numpy.issubdtype(data2.dtype, str) :
+
+            elif data2.dtype != np.dtype(str).type :
+
                 newcolumn = numpy.array(map(str, data2))
                 if (sum(data1 == newcolumn) != len(data1)): 
                     message += ColumnNamesListCDS[i] + ' in cdstable and ' + columnNamesListDB[i] + ' in db are not equal and have different types. ('+ str(sum(data1 != data2)) + ' items).'
-        if(len(message) > 0) :
-            #print "Errors: " + message
+
+        if (len(message) > 0) :
             raise Exception, message
         else:
             return True
@@ -207,7 +237,7 @@ if __name__ == '__main__':
                        amiga_db_database,
                        amiga_db_user,
                        amiga_db_password)
-    
+
     cds_db_url = config.get("cds_db", "url")
     cds_db_columns = config.get("cds_db", "table_columns").split(',')
     diff.getTableFromCDS(cds_db_url)
