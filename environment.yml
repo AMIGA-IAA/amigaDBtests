@@ -1,0 +1,9 @@
+
+name: amigaDBtests
+
+dependencies:
+ - python
+ - astropy
+ - mysqlclient
+ - numpy
+ - nomkl
