@@ -13,6 +13,7 @@ import configparser
 import os
 from numpy import array
 import numpy as np
+import argparse
 
 
 class diff_DB_CDS(object):
@@ -221,10 +222,16 @@ if __name__ == '__main__':
 #    
 #    #print dbnames
 #    diff.compareTables(dbnames, cdsnames, tolerance)
+
     
-    #new case
+    # setup command line parser
+    parser = argparse.ArgumentParser(
+        description='Compare a CDS table with its corresponding one on AMIGA DB.')
+    parser.add_argument("configfile", help="Path to configuration file")
+    options = parser.parse_args()
+
     config = configparser.RawConfigParser(allow_no_value=True)
-    config.read(['config.cfg', os.path.expanduser('~/.config.cfg')])
+    config.read(options.configfile)
     amiga_db_user = config.get("amiga_db", "user")
     amiga_db_password = config.get("amiga_db", "password")
     amiga_db_host = config.get("amiga_db", "host")
