@@ -1,7 +1,7 @@
 amigaDBtests
 ============
 
-Tests for the amiga databases
+Scripts to compare [CDS](https://cds.u-strasbg.fr/) tables with AMIGA tables.
 
 How to use it
 -------------
@@ -31,5 +31,5 @@ table_columns=<column_name_1,column_name_2>
 ```
 Then, you should be able to run the script with:
 ```
-python diffTables.py 1> output.stdout 2> output.stderr
+python diffTables.py config.cfg
 ```
